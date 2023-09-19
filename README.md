@@ -1,5 +1,16 @@
 # ZeroMQ-Assessment
 
+## Setup
+
+### Dependencies
+
+Python3 3.11.5
+Pip3 23.2.1
+PostgreSQL
+
+ZeroMQ Pyzmq Library
+`pip3 install pyzmq`
+
 ### Prompt
 
 Write a program that subscribes to a ZeroMQ `lat/lon` publisher and ingests messages into a database.
