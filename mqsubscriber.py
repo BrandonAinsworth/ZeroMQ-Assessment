@@ -1,11 +1,7 @@
-#
-#   Hello World client in Python
-#   Connects REQ socket to tcp://localhost:5555
-#   Sends "Hello" to server, expects "World" back
-#
-
 import zmq
 import math
+from lat_long_db import write_radians_to_db
+
 context = zmq.Context()
 
 #  Socket to talk to server
@@ -30,7 +26,8 @@ try:
         #  Get the reply.
         message = socket.recv_json()
         print(f"Received reply {request} , {message} ")
-        print(convert_to_radians(message))
+        converted_data = convert_to_radians(message)
+        write_radians_to_db(converted_data)
         
 #Handle Ctrl+C SIGINT from 0MQ Docs    
 except KeyboardInterrupt:
