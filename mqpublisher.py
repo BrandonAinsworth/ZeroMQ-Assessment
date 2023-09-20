@@ -31,9 +31,9 @@ try:
 
             #  Do some 'work'
             time.sleep(5)
-
+            random_lat_long = generate_random_lat_lon()
             #  Send reply back to client
-            socket.send_json(generate_random_lat_lon())
+            socket.send_json(random_lat_long)
     
 #Handle Ctrl+C SIGINT from 0MQ Docs    
 except KeyboardInterrupt:
