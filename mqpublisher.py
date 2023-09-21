@@ -14,7 +14,7 @@ def generate_random_lat_lon():
 
 context = zmq.Context()
 socket = context.socket(zmq.REP)
-socket.bind("tcp://*:5555")
+socket.connect("tcp://localhost:5560")
 
 
 try:
