@@ -7,7 +7,7 @@ context = zmq.Context()
 #  Socket to talk to server
 print("Connecting to 0MQ publisher…")
 socket = context.socket(zmq.REQ)
-socket.connect("tcp://localhost:5555")
+socket.connect("tcp://localhost:5559")
 
 def convert_to_radians(message):
     lat_rad = round(((message['lat']) * math.pi / 180),5)
