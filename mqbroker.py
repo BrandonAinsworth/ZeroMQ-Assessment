@@ -2,7 +2,6 @@
 
 from collections import OrderedDict
 import time
-import logging
 import zmq
 
 HEARTBEAT_LIVENESS = 3     # 3..5 is reasonable
@@ -25,6 +24,7 @@ class WorkerQueue(object):
     def ready(self, worker):
         self.queue.pop(worker.address, None)
         self.queue[worker.address] = worker
+        
 
     def purge(self):
         """Look for & kill expired workers."""
@@ -34,7 +34,7 @@ class WorkerQueue(object):
             if t > worker.expiry:  # Worker expired
                 expired.append(address)
         for address in expired:
-            logging.info("Idle publisher expired: %s" % address)
+            print("Idle publisher expired: %s" % address)
             self.queue.pop(address, None)
 
     def next(self):
@@ -82,7 +82,7 @@ try:
           msg = frames[1:]
           if len(msg) == 1:
               if msg[0] not in (PPP_READY, PPP_HEARTBEAT):
-                  logging.error("Invalid message from publisher: %s" % msg)
+                  print("Invalid message from publisher: %s" % msg)
           else:
               frontend.send_multipart(msg)
 
@@ -103,7 +103,7 @@ try:
       workers.purge()
       
 except KeyboardInterrupt:
-  logging.error(' Program Interrupted by User')
+  print(' Program Interrupted by User')
 finally:
   frontend.close()
   backend.close()
