@@ -2,7 +2,7 @@
 
 from collections import OrderedDict
 import time
-
+import logging
 import zmq
 
 HEARTBEAT_LIVENESS = 3     # 3..5 is reasonable
@@ -34,7 +34,7 @@ class WorkerQueue(object):
             if t > worker.expiry:  # Worker expired
                 expired.append(address)
         for address in expired:
-            print("W: Idle worker expired: %s" % address)
+            logging.info("Idle publisher expired: %s" % address)
             self.queue.pop(address, None)
 
     def next(self):
@@ -59,44 +59,51 @@ workers = WorkerQueue()
 
 heartbeat_at = time.time() + HEARTBEAT_INTERVAL
 
-while True:
-    if len(workers.queue) > 0:
-        poller = poll_both
-    else:
-        poller = poll_workers
-    socks = dict(poller.poll(HEARTBEAT_INTERVAL * 1000))
+try:
 
-    # Handle worker activity on backend
-    if socks.get(backend) == zmq.POLLIN:
-        # Use worker address for LRU routing
-        frames = backend.recv_multipart()
-        if not frames:
-            break
+  while True:
+      if len(workers.queue) > 0:
+          poller = poll_both
+      else:
+          poller = poll_workers
+      socks = dict(poller.poll(HEARTBEAT_INTERVAL * 1000))
 
-        address = frames[0]
-        workers.ready(Worker(address))
+      # Handle worker activity on backend
+      if socks.get(backend) == zmq.POLLIN:
+          # Use worker address for LRU routing
+          frames = backend.recv_multipart()
+          if not frames:
+              break
 
-        # Validate control message, or return reply to client
-        msg = frames[1:]
-        if len(msg) == 1:
-            if msg[0] not in (PPP_READY, PPP_HEARTBEAT):
-                print("E: Invalid message from worker: %s" % msg)
-        else:
-            frontend.send_multipart(msg)
+          address = frames[0]
+          workers.ready(Worker(address))
 
-        # Send heartbeats to idle workers if it's time
-        if time.time() >= heartbeat_at:
-            for worker in workers.queue:
-                msg = [worker, PPP_HEARTBEAT]
-                backend.send_multipart(msg)
-            heartbeat_at = time.time() + HEARTBEAT_INTERVAL
-    if socks.get(frontend) == zmq.POLLIN:
-        frames = frontend.recv_multipart()
-        if not frames:
-            break
+          # Validate control message, or return reply to client
+          msg = frames[1:]
+          if len(msg) == 1:
+              if msg[0] not in (PPP_READY, PPP_HEARTBEAT):
+                  logging.error("Invalid message from publisher: %s" % msg)
+          else:
+              frontend.send_multipart(msg)
 
-        frames.insert(0, workers.next())
-        backend.send_multipart(frames)
+          # Send heartbeats to idle workers if it's time
+          if time.time() >= heartbeat_at:
+              for worker in workers.queue:
+                  msg = [worker, PPP_HEARTBEAT]
+                  backend.send_multipart(msg)
+              heartbeat_at = time.time() + HEARTBEAT_INTERVAL
+      if socks.get(frontend) == zmq.POLLIN:
+          frames = frontend.recv_multipart()
+          if not frames:
+              break
 
-
-    workers.purge()
+          frames.insert(0, workers.next())
+          backend.send_multipart(frames)
+          
+      workers.purge()
+      
+except KeyboardInterrupt:
+  logging.error(' Program Interrupted by User')
+finally:
+  frontend.close()
+  backend.close()
