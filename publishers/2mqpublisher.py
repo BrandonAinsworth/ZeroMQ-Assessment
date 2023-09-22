@@ -5,6 +5,9 @@ import time
 import random
 import zmq
 import json
+import logging
+
+
 def generate_random_lat_lon():
     
     lat = round(random.uniform(-90, 90),5)
@@ -64,14 +67,14 @@ try:
 
             if len(frames) == 3:
                 # Simulate various problems, after a few cycles
-                # cycles += 1
+                cycles += 1
                 # if cycles > 3 and randint(0, 5) == 0:
                 #     print("I: Simulating a crash")
                 #     break
                 # if cycles > 3 and randint(0, 5) == 0:
                 #     print("I: Simulating CPU overload")
                 #     time.sleep(3)
-                print("I: Normal reply")
+                # print("I: Normal reply")
                 latlonggen = generate_random_lat_lon()
                 latlong = json.dumps(latlonggen, ensure_ascii=False).encode('utf8')
                 worker.send_multipart([frames[0], b"", latlong])
@@ -81,14 +84,19 @@ try:
                 # print("I: Queue heartbeat")
                 liveness = HEARTBEAT_LIVENESS
             else:
-                print("E: Invalid message: %s" % frames)
+                print("Invalid message: %s" % frames)
             interval = INTERVAL_INIT
         else:
             liveness -= 1
             if liveness == 0:
-                print("W: Heartbeat failure, can't reach queue")
-                print("W: Reconnecting in %0.2fs..." % interval)
+                print("Heartbeat failure, can't reach queue")
+                print("Reconnecting in %0.2fs..." % interval)
                 time.sleep(interval)
+                # Close publisher if queue is unreachable at interval
+                if interval == 4:
+                    poller.unregister(worker)
+                    worker.setsockopt(zmq.LINGER, 0)
+                    worker.close()
 
                 if interval < INTERVAL_MAX:
                     interval *= 2
@@ -103,5 +111,7 @@ try:
             worker.send(PPP_HEARTBEAT)
 except KeyboardInterrupt:
     print(' Program Terminated by User')
+except KeyError:
+    print("Queue seems to be offline, abandoning")
 finally:
     worker.close()
