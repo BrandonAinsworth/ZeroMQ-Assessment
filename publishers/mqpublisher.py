@@ -74,12 +74,14 @@ try:
                 # if cycles > 3 and randint(0, 5) == 0:
                 #     print("I: Simulating CPU overload")
                 #     time.sleep(3)
-                # print("I: Normal reply")
+                
                 latlonggen = generate_random_lat_lon()
                 latlong = json.dumps(latlonggen, ensure_ascii=False).encode('utf8')
                 worker.send_multipart([frames[0], b"", latlong])
+                print("Message sent")
                 liveness = HEARTBEAT_LIVENESS
-                time.sleep(1)  # Do some heavy work
+                # Sleep to throttle message speed
+                time.sleep(1)
             elif len(frames) == 1 and frames[0] == PPP_HEARTBEAT:
                 # print("I: Queue heartbeat")
                 liveness = HEARTBEAT_LIVENESS
