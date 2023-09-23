@@ -1,7 +1,6 @@
-# Pathological subscriber
+#Pathological subscriber
 
 
-import sys
 import math
 import zmq
 from dbmodule import write_radians_to_db
@@ -18,7 +17,7 @@ def convert_to_radians(message):
 def main():
     ctx = zmq.Context.instance()
     subscriber = ctx.socket(zmq.SUB)
-    subscriber.connect("tcp://localhost:5556")
+    subscriber.connect("tcp://localhost:5557")
     subscriber.setsockopt(zmq.SUBSCRIBE, b"")
 
     while True: 
@@ -33,3 +32,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
