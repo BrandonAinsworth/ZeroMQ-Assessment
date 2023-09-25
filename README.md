@@ -23,19 +23,21 @@ Install [PostgreSQL](https://www.postgresql.org/download/) | This program utiliz
 
 3. Set up database
 
-a. Open PostgreSQL
-b. Create database
-c. Open psql terminal on new database
-d. Execute the following script: 
+a. Open PostgreSQL <br>
+b. Create database <br>
+c. Open psql terminal on new database <br>
+d. Execute the following script: <br>
 
-`CREATE TABLE "public.lat_long_messages" (
+```
+CREATE TABLE "public.lat_long_messages" (
 	"ID" serial NOT NULL,
 	"lat_rad" DECIMAL(8,5) NOT NULL,
 	"long_rad" DECIMAL(8,5) NOT NULL,
 	CONSTRAINT "lat_long_messages_pk" PRIMARY KEY ("ID")
 ) WITH (
   OIDS=FALSE
-);`
+);
+```
 
 e. Navigate to program directory, access `dbmodule.py`, change lines 9 and 10 to reflect your database settings. 
 
