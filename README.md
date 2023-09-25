@@ -10,18 +10,18 @@ Pyscopg2-binary <br>
 
 ## Setup
 
-1. Clone this repository
-2. Install dependencies
+<b> 1. Clone this repository </b><br>
+<b> 2. Install dependencies </b><br>
 
-ZeroMQ Pyzmq Library
+ZeroMQ Pyzmq Library <br>
 `pip3 install pyzmq`
 
-Psycopg2-binary 
+Psycopg2-binary <br>
 `pip3 install psycopg2-binary`
 
-Install [PostgreSQL](https://www.postgresql.org/download/) | This program utilizes PostgreSQL 14.
+Install [PostgreSQL](https://www.postgresql.org/download/) | This program utilizes PostgreSQL 14. <br>
 
-3. Set up database
+<b> 3. Set up database </b> <br>
 
 a. Open PostgreSQL <br>
 b. Create database <br>
@@ -41,10 +41,10 @@ CREATE TABLE "public.lat_long_messages" (
 
 e. Navigate to program directory, access `dbmodule.py`, change lines 9 and 10 to reflect your database settings. 
 
-4. Run the program! This can be done in multiple ways.
-   a. Run each script (`proxy.py` , `mqsubscriber.py` , `mqpublisher.py`) individually, any order is acceptable.
-   b. Run `run_program.py` which will run all 3 concurrently. This will only terminate by interruption.
-   c. Run `run_program_test.py` which will run all 3 once again, but with test flags. This will terminate after 5 iterations.
+<b> 4. Run the program! </b> This can be done in multiple ways. <br>
+   a. Run each script (`proxy.py` , `mqsubscriber.py` , `mqpublisher.py`) individually, any order is acceptable. Example: `python3 proxy.py` etc. <br>
+   b. Run `run_program.py` which will run all 3 concurrently. This will only terminate by interruption. <br>
+   c. Run `run_program_test.py` which will run all 3, but with test flags. This will terminate after 5 iterations. <br>
 
 ### Prompt
 
@@ -73,3 +73,9 @@ Your working solution should include the following:
 ### MVP
 
 Our MVP will be a program that includes both a 0MQ subscriber and publisher. Our publisher will send lat/long messages to our subscriber, and these messages will then be stored in a relational database. 
+
+### Future Roadmap
+
+- Expanded testing suite: Integration testing, test mock sockets
+- Build pipleline to automate tests
+- Impement a more complex pattern to: cache messages for late joining subscribers to receive updates from, add backup server, add heartbeats to inform client of server failures/inaccessibility
