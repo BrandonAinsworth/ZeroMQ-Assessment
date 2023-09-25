@@ -3,6 +3,7 @@
 import time
 import zmq
 import random
+import sys
 
 def generate_random_lat_lon():
     
@@ -14,21 +15,32 @@ def generate_random_lat_lon():
         'long': long
     }
 
-def main():
+def main(testing=False):
     ctx = zmq.Context.instance()
     publisher = ctx.socket(zmq.PUB)
     publisher.connect("tcp://localhost:5558")
-
+    test_iteration = 0
+    
     while True:
+        if testing and test_iteration >= 5:
+            publisher.close()
+            break
+        
         # Send one random update per second
         try:
             time.sleep(1)
             latlong = generate_random_lat_lon()
             publisher.send_json(latlong)
+            if testing:
+                test_iteration += 1
         except KeyboardInterrupt:
-            print (" Interrupted by User")
+            print (" Publisher Interrupted by User")
+            publisher.close()
             break
 
 if __name__ == '__main__':
-    main()
+    if len(sys.argv) > 1 and sys.argv[1] == "--test":
+        main(testing=True)
+    else:
+        main()
 
