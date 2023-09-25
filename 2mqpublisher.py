@@ -1,4 +1,5 @@
 # Pathological publisher
+# Tests multiple publishers
 
 import time
 import zmq
