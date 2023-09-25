@@ -3,6 +3,7 @@
 
 import math
 import zmq
+import json
 from dbmodule import write_radians_to_db
 
 def convert_to_radians(message):
@@ -23,12 +24,20 @@ def main():
     while True: 
         try:
             data = subscriber.recv_json()
-            converted_data = convert_to_radians(data)
-            write_radians_to_db(converted_data)
-            print(data)
+
+            if 'lat' in data and 'long' in data and len(data) == 2:
+                converted_data = convert_to_radians(data)
+                write_radians_to_db(converted_data)
+                print(data)
+            else:
+                print("Incorrect data received, continuing..")
+
         except KeyboardInterrupt:
             print(" Interrupted by User")
             break
+        except json.JSONDecodeError:
+            print("Invalid message, continuing...")
+
 
 if __name__ == '__main__':
     main()
